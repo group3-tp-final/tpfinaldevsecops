@@ -39,7 +39,7 @@ services:
     build: ./frontend
     container_name: frontend_app
     ports:
-      - "5434:80"
+      - "33000:80"
     depends_on:
       - backend
 
