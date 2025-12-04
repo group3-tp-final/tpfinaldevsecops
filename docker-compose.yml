@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: clicker
       POSTGRES_DB: clicker
     ports:
-      - "5432:5432"
+      - "45000:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./database:/docker-entrypoint-initdb.d
