@@ -42,6 +42,9 @@ jobs:
   trivy:
     name: Trivy Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -55,10 +58,17 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+
+      - name: Upload Trivy results as artifact (backup)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-scan-results
+          path: trivy-results.sarif
 
   build:
     name: Build and Push Images
@@ -93,7 +103,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=sha
 
       - name: Build and push Backend image
         uses: docker/build-push-action@v4
@@ -115,7 +125,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=sha
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v4
