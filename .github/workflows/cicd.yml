@@ -63,6 +63,13 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
+      - name: Upload Trivy results as artifact (backup)
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: trivy-scan-results
+          path: trivy-results.sarif
+
   build:
     name: Build and Push Images
     runs-on: ubuntu-latest
