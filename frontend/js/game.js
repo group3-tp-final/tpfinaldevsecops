@@ -1,8 +1,65 @@
+// Configuration
+const CONFIG = {
+    GAME_DURATION: 10, // secondes
+    BACKEND_PORT: 8081,
+    FRONTEND_PORT: 8080,
+    LEADERBOARD_REFRESH_INTERVAL: 30000, // ms
+    PARTICLE_LIFETIME: 3000, // ms
+    NOTIFICATION_DURATION: 5000, // ms
+    ACHIEVEMENT_NOTIFICATION_DELAY: 2000, // ms
+    CLICK_ANIMATION_DURATION: 100, // ms
+    SHAKE_ANIMATION_DURATION: 100, // ms
+    SHAKE_MILESTONE: 10, // nombre de clics
+    COUNTDOWN_WARNING_THRESHOLD: 3, // secondes
+    PARTICLE_BURST_COUNT: 20,
+    AUDIO: {
+        DEFAULT_FREQUENCY: 440,
+        DEFAULT_DURATION: 100,
+        DEFAULT_TYPE: 'sine',
+        GAIN_START: 0.3,
+        GAIN_END: 0.01,
+        CLICK_BASE_FREQUENCY: 200,
+        CLICK_FREQUENCY_INCREMENT: 10,
+        CLICK_DURATION: 50,
+        MILESTONE_FREQUENCY: 600,
+        MILESTONE_DURATION: 300,
+        COUNTDOWN_FREQUENCY: 400,
+        COUNTDOWN_DURATION: 100,
+        GAME_OVER_SEQUENCE: [
+            { frequency: 523, duration: 100, delay: 0 },
+            { frequency: 659, duration: 100, delay: 100 },
+            { frequency: 784, duration: 200, delay: 200 }
+        ],
+        ACHIEVEMENT_SEQUENCE: [
+            { frequency: 523, duration: 200, delay: 0 },
+            { frequency: 659, duration: 200, delay: 150 },
+            { frequency: 784, duration: 400, delay: 300 }
+        ],
+        START_FREQUENCY: 800,
+        START_DURATION: 200
+    },
+    PARTICLES: {
+        EMOJIS: ['💥', '🔥', '⚡', '✨', '🌟', '💫', '🎉', '🎊'],
+        MIN_ANIMATION_DURATION: 1, // secondes
+        MAX_ANIMATION_DURATION: 3, // secondes
+        MIN_FONT_SIZE: 20, // px
+        MAX_FONT_SIZE: 40, // px
+        BURST_DELAY: 50 // ms entre chaque particule
+    },
+    COLORS: {
+        DEFAULT_ACHIEVEMENT: '#FFD700',
+        COUNTDOWN_WARNING: '#ff006e'
+    },
+    ANIMATION: {
+        PULSE_DURATION: 0.5, // secondes
+        SHAKE_OFFSET: 10 // px
+    }
+};
 
 let gameState = {
     isPlaying: false,
     clicks: 0,
-    timeLeft: 10,
+    timeLeft: CONFIG.GAME_DURATION,
     timer: null,
     username: ''
 };
@@ -11,7 +68,24 @@ let gameState = {
 const API_BASE_URL = getApiUrl();
 
 function getApiUrl() {
-    return window.location.origin.replace(/:\d+$/, ':5433');
+    
+    if (window.BACKEND_URL) {
+        return window.BACKEND_URL;
+    }
+    
+    
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+    
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return `http://localhost:${CONFIG.BACKEND_PORT}`;
+    }
+    
+    if (port === String(CONFIG.FRONTEND_PORT)) {
+        return window.location.origin.replace(`:${CONFIG.FRONTEND_PORT}`, `:${CONFIG.BACKEND_PORT}`);
+    }
+    
+    return window.location.origin.replace(/:\d+$/, `:${CONFIG.BACKEND_PORT}`) || `http://localhost:${CONFIG.BACKEND_PORT}`;
 }
 
 const clickButton = document.getElementById('clickButton');
@@ -26,7 +100,7 @@ const particles = document.getElementById('particles');
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-function playSound(frequency = 440, duration = 100, type = 'sine') {
+function playSound(frequency = CONFIG.AUDIO.DEFAULT_FREQUENCY, duration = CONFIG.AUDIO.DEFAULT_DURATION, type = CONFIG.AUDIO.DEFAULT_TYPE) {
     try {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
@@ -37,8 +111,8 @@ function playSound(frequency = 440, duration = 100, type = 'sine') {
         oscillator.frequency.value = frequency;
         oscillator.type = type;
         
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+        gainNode.gain.setValueAtTime(CONFIG.AUDIO.GAIN_START, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(CONFIG.AUDIO.GAIN_END, audioContext.currentTime + duration / 1000);
         
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + duration / 1000);
@@ -49,19 +123,20 @@ function playSound(frequency = 440, duration = 100, type = 'sine') {
 
 
 function createParticle(x, y) {
-    const emojis = ['💥', '🔥', '⚡', '✨', '🌟', '💫', '🎉', '🎊'];
     const particle = document.createElement('div');
     particle.className = 'particle';
-    particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    particle.textContent = CONFIG.PARTICLES.EMOJIS[Math.floor(Math.random() * CONFIG.PARTICLES.EMOJIS.length)];
     particle.style.left = x + 'px';
     particle.style.top = y + 'px';
-    particle.style.animationDuration = (Math.random() * 2 + 1) + 's';
-    particle.style.fontSize = (Math.random() * 20 + 20) + 'px';
+    const animDuration = Math.random() * (CONFIG.PARTICLES.MAX_ANIMATION_DURATION - CONFIG.PARTICLES.MIN_ANIMATION_DURATION) + CONFIG.PARTICLES.MIN_ANIMATION_DURATION;
+    particle.style.animationDuration = animDuration + 's';
+    const fontSize = Math.random() * (CONFIG.PARTICLES.MAX_FONT_SIZE - CONFIG.PARTICLES.MIN_FONT_SIZE) + CONFIG.PARTICLES.MIN_FONT_SIZE;
+    particle.style.fontSize = fontSize + 'px';
     particles.appendChild(particle);
     
     setTimeout(() => {
         particle.remove();
-    }, 3000);
+    }, CONFIG.PARTICLE_LIFETIME);
 }
 
 
@@ -72,21 +147,21 @@ function showAchievementNotification(achievement) {
     const desc = document.getElementById('achievementDesc');
     
     icon.textContent = achievement.icon || '🏆';
-    icon.style.color = achievement.color || '#FFD700';
+    icon.style.color = achievement.color || CONFIG.COLORS.DEFAULT_ACHIEVEMENT;
     title.textContent = achievement.name || 'Achievement Unlocked!';
     desc.textContent = achievement.description || '';
     
     notification.classList.remove('hidden');
     
     
-    playSound(523, 200, 'sine'); 
-    setTimeout(() => playSound(659, 200, 'sine'), 150); 
-    setTimeout(() => playSound(784, 400, 'sine'), 300); 
+    CONFIG.AUDIO.ACHIEVEMENT_SEQUENCE.forEach(sound => {
+        setTimeout(() => playSound(sound.frequency, sound.duration, 'sine'), sound.delay);
+    });
     
     
     setTimeout(() => {
         notification.classList.add('hidden');
-    }, 5000);
+    }, CONFIG.NOTIFICATION_DURATION);
 }
 
 
@@ -118,7 +193,7 @@ function displayAllAchievements(achievements) {
     achievementsContainer.innerHTML = achievements.map(achievement => {
         const maxCPS = achievement.max_cps ? ` - ${achievement.max_cps.toFixed(1)} CPS` : '+ CPS';
         return `
-            <div class="achievement-item" style="border-left: 5px solid ${achievement.color || '#FFD700'}">
+            <div class="achievement-item" style="border-left: 5px solid ${achievement.color || CONFIG.COLORS.DEFAULT_ACHIEVEMENT}">
                 <div class="achievement-icon">${achievement.icon || '🏆'}</div>
                 <div class="achievement-info">
                     <div class="achievement-name">${escapeHtml(achievement.name)}</div>
@@ -173,7 +248,7 @@ function initGame() {
     
     loadLeaderboard();
     loadAllAchievements();
-    setInterval(loadLeaderboard, 30000); 
+    setInterval(loadLeaderboard, CONFIG.LEADERBOARD_REFRESH_INTERVAL); 
 }
 
 
@@ -190,10 +265,10 @@ function startGame(autoStart = false) {
     gameState.username = username || ''; 
     gameState.isPlaying = true;
     gameState.clicks = 0;
-    gameState.timeLeft = 10;
+    gameState.timeLeft = CONFIG.GAME_DURATION;
     
     clickCount.textContent = '0';
-    timer.textContent = '10';
+    timer.textContent = String(CONFIG.GAME_DURATION);
     gameStatus.textContent = autoStart ? 'GO! CLICK LIKE CRAZY!' : 'GET READY...';
     gameStatus.className = 'game-status playing';
     
@@ -203,12 +278,12 @@ function startGame(autoStart = false) {
     
     if (autoStart) {
         startTimer();
-        playSound(800, 200, 'square');
+        playSound(CONFIG.AUDIO.START_FREQUENCY, CONFIG.AUDIO.START_DURATION, 'square');
     } else {
         setTimeout(() => {
             gameStatus.textContent = 'GO! CLICK LIKE CRAZY!';
             startTimer();
-            playSound(800, 200, 'square');
+            playSound(CONFIG.AUDIO.START_FREQUENCY, CONFIG.AUDIO.START_DURATION, 'square');
         }, 1000);
     }
 }
@@ -238,11 +313,11 @@ function handleClick() {
     clickButton.classList.add('clicked');
     setTimeout(() => {
         clickButton.classList.remove('clicked');
-    }, 100);
+    }, CONFIG.CLICK_ANIMATION_DURATION);
     
     
-    const frequency = 200 + (gameState.clicks * 10);
-    playSound(frequency, 50, 'square');
+    const frequency = CONFIG.AUDIO.CLICK_BASE_FREQUENCY + (gameState.clicks * CONFIG.AUDIO.CLICK_FREQUENCY_INCREMENT);
+    playSound(frequency, CONFIG.AUDIO.CLICK_DURATION, 'square');
     
     
     const rect = clickButton.getBoundingClientRect();
@@ -251,12 +326,12 @@ function handleClick() {
     createParticle(x, y);
     
     
-    if (gameState.clicks % 10 === 0) {
-        document.body.style.animation = 'shake 0.1s';
+    if (gameState.clicks % CONFIG.SHAKE_MILESTONE === 0) {
+        document.body.style.animation = `shake ${CONFIG.SHAKE_ANIMATION_DURATION / 1000}s`;
         setTimeout(() => {
             document.body.style.animation = '';
-        }, 100);
-        playSound(600, 300, 'triangle');
+        }, CONFIG.SHAKE_ANIMATION_DURATION);
+        playSound(CONFIG.AUDIO.MILESTONE_FREQUENCY, CONFIG.AUDIO.MILESTONE_DURATION, 'triangle');
     }
 }
 
@@ -266,10 +341,10 @@ function startTimer() {
         gameState.timeLeft--;
         timer.textContent = gameState.timeLeft;
         
-        if (gameState.timeLeft <= 3) {
-            timer.style.color = '#ff006e';
-            timer.style.animation = 'pulse 0.5s infinite';
-            playSound(400, 100, 'sawtooth');
+        if (gameState.timeLeft <= CONFIG.COUNTDOWN_WARNING_THRESHOLD) {
+            timer.style.color = CONFIG.COLORS.COUNTDOWN_WARNING;
+            timer.style.animation = `pulse ${CONFIG.ANIMATION.PULSE_DURATION}s infinite`;
+            playSound(CONFIG.AUDIO.COUNTDOWN_FREQUENCY, CONFIG.AUDIO.COUNTDOWN_DURATION, 'sawtooth');
         }
         
         if (gameState.timeLeft <= 0) {
@@ -295,18 +370,18 @@ function endGame() {
     gameStatus.className = 'game-status finished';
     
     
-    playSound(523, 100, 'sine'); 
-    setTimeout(() => playSound(659, 100, 'sine'), 100); 
-    setTimeout(() => playSound(784, 200, 'sine'), 200); 
+    CONFIG.AUDIO.GAME_OVER_SEQUENCE.forEach(sound => {
+        setTimeout(() => playSound(sound.frequency, sound.duration, 'sine'), sound.delay);
+    });
     
     
     const rect = clickButton.getBoundingClientRect();
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < CONFIG.PARTICLE_BURST_COUNT; i++) {
         setTimeout(() => {
             const x = rect.left + Math.random() * rect.width;
             const y = rect.top + Math.random() * rect.height;
             createParticle(x, y);
-        }, i * 50);
+        }, i * CONFIG.PARTICLES.BURST_DELAY);
     }
     
     
@@ -342,7 +417,7 @@ function submitScoreAndHandleResult(username) {
             result.achievements.forEach((achievement, index) => {
                 setTimeout(() => {
                     showAchievementNotification(achievement);
-                }, index * 2000); 
+                }, index * CONFIG.ACHIEVEMENT_NOTIFICATION_DELAY); 
             });
         }
         loadLeaderboard();
@@ -439,8 +514,8 @@ const style = document.createElement('style');
 style.textContent = `
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
+        25% { transform: translateX(-${CONFIG.ANIMATION.SHAKE_OFFSET}px); }
+        75% { transform: translateX(${CONFIG.ANIMATION.SHAKE_OFFSET}px); }
     }
 `;
 document.head.appendChild(style);
