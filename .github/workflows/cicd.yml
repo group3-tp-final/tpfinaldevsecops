@@ -19,17 +19,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install Trivy
+
+      - name: Install Trivy (official script)
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-          wget -qO - https://aquasecurity.github.io/trivy-repo/debian/public.key | sudo apt-key add -
-          echo deb https://aquasecurity.github.io/trivy-repo/debian $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo mkdir -p /etc/apt/keyrings
+          wget -qO- https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo tee /etc/apt/keyrings/trivy.asc > /dev/null
+          echo "deb [signed-by=/etc/apt/keyrings/trivy.asc] https://aquasecurity.github.io/trivy-repo/deb $(. /etc/os-release; echo $VERSION_CODENAME) main" | sudo tee /etc/apt/sources.list.d/trivy.list
           sudo apt-get update -y
           sudo apt-get install -y trivy
 
       - name: Trivy filesystem scan
         run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+
 
   build:
     needs: [trufflehog, trivy]
