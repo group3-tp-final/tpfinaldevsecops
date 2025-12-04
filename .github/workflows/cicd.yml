@@ -13,7 +13,7 @@ env:
 
 jobs:
   trufflehog:
-    name: Secret Scanning
+    name: TruffleHog Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -30,7 +30,7 @@ jobs:
           extra_args: --debug --only-verified
 
   trivy:
-    name: Security Scan
+    name: Trivy Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
