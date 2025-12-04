@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, 'refacto/**', 'feature/**' ]
   pull_request:
     branches: [ main ]
 
@@ -129,5 +129,5 @@ jobs:
 
       - name: Deploy notification
         run: |
-          echo "🚀 Deployment step - Configure your deployment here"
+          echo "Deployment step - Configure your deployment here"
           echo "Images built and pushed successfully"
