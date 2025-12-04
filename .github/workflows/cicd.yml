@@ -1,0 +1,48 @@
+name: CI/CD DevSecOps Final
+
+on:
+  push:
+    branches: [ "main", "develop", "feature/*" ]
+
+jobs:
+
+  trufflehog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Scan with Trufflehog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: .
+
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Bandit
+        run: pip install bandit
+      - name: Run Bandit
+        run: bandit -r .
+
+  build:
+    needs: [trufflehog, bandit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build backend
+        run: docker build -t ghcr.io/${{ github.repository }}/backend:latest backend/.
+
+      - name: Push image
+        run: docker push ghcr.io/${{ github.repository }}/backend:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Trigger Coolify
+        run: |
+          curl -X POST ${{ secrets.COOLIFY_WEBHOOK }}
