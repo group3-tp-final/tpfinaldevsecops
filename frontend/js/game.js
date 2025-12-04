@@ -11,26 +11,8 @@ let gameState = {
 const API_BASE_URL = getApiUrl();
 
 function getApiUrl() {
-    
-    if (window.BACKEND_URL) {
-        return window.BACKEND_URL;
-    }
-    
-    
-    const hostname = window.location.hostname;
-    const port = window.location.port;
-    
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:8081';
-    }
-    
-    if (port === '8080') {
-        return window.location.origin.replace(':8080', ':8081');
-    }
-    
-    return window.location.origin.replace(/:\d+$/, ':8081') || 'http://localhost:8081';
+    return window.location.origin.replace(/:\d+$/, ':5433');
 }
-
 
 const clickButton = document.getElementById('clickButton');
 const clickCount = document.getElementById('clickCount');
