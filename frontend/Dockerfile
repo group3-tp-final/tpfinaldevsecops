@@ -1,8 +1,9 @@
 FROM nginx:stable-alpine
 
-COPY index.html /usr/share/nginx/html/index.html
-COPY nginx.conf /etc/nginx/nginx.conf
+WORKDIR /usr/share/nginx/html
 
-EXPOSE 80
+COPY index.html .
+COPY css ./css
+COPY js ./js
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY nginx.conf /etc/nginx/conf.d/default.conf

@@ -1,8 +1,8 @@
 // Configuration
 const CONFIG = {
     GAME_DURATION: 10, // secondes
-    BACKEND_PORT: 8081,
-    FRONTEND_PORT: 8080,
+    BACKEND_PORT: 5433,
+    FRONTEND_PORT: 5434,
     LEADERBOARD_REFRESH_INTERVAL: 30000, // ms
     PARTICLE_LIFETIME: 3000, // ms
     NOTIFICATION_DURATION: 5000, // ms
@@ -87,7 +87,6 @@ function getApiUrl() {
     
     return window.location.origin.replace(/:\d+$/, `:${CONFIG.BACKEND_PORT}`) || `http://localhost:${CONFIG.BACKEND_PORT}`;
 }
-
 
 const clickButton = document.getElementById('clickButton');
 const clickCount = document.getElementById('clickCount');
