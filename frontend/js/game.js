@@ -1,7 +1,7 @@
 // Configuration
 const CONFIG = {
     GAME_DURATION: 10, // secondes
-    BACKEND_PORT: 5433,
+    BACKEND_PORT: 33001,
     FRONTEND_PORT: 33000,
     LEADERBOARD_REFRESH_INTERVAL: 30000, // ms
     PARTICLE_LIFETIME: 3000, // ms

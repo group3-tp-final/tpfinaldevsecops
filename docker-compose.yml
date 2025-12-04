@@ -30,7 +30,7 @@ services:
       DB_NAME: clicker
       PORT: 8081
     ports:
-      - "5433:8081"         
+      - "33001:8081"         
     depends_on:
       database:
         condition: service_healthy
