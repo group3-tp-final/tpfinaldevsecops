@@ -13,6 +13,26 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// Configuration constants
+const (
+	DefaultDBHost     = "localhost"
+	DefaultDBPort     = "5432"
+	DefaultDBUser     = "postgres"
+	DefaultDBPassword = "clicker"
+	DefaultDBName     = "clicker"
+	DefaultServerPort = "8081"
+	
+	GameDurationSeconds = 10
+	LeaderboardLimit    = 100
+	
+	HTTPStatusCreated = http.StatusCreated
+	HTTPStatusOK      = http.StatusOK
+	
+	SSLMode = "disable"
+	
+	ServiceName = "clicker-game-api"
+)
+
 type Server struct {
 	DB *sql.DB
 }
@@ -68,7 +88,7 @@ type SubmitScoreResponse struct {
 }
 
 func (s *Server) getLeaderboard(w http.ResponseWriter, r *http.Request) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT 
 			u.username,
 			s.clicks,
@@ -77,8 +97,8 @@ func (s *Server) getLeaderboard(w http.ResponseWriter, r *http.Request) {
 		FROM scores s
 		JOIN users u ON s.user_id = u.id
 		ORDER BY s.clicks DESC, s.game_date DESC
-		LIMIT 100
-	`
+		LIMIT %d
+	`, LeaderboardLimit)
 
 	rows, err := s.DB.Query(query)
 	if err != nil {
@@ -147,7 +167,7 @@ func (s *Server) submitScore(w http.ResponseWriter, r *http.Request) {
 	var scoreID int
 	err = s.DB.QueryRow(
 		"INSERT INTO scores (user_id, clicks, duration_seconds) VALUES ($1, $2, $3) RETURNING id",
-		userID, req.Clicks, 10,
+		userID, req.Clicks, GameDurationSeconds,
 	).Scan(&scoreID)
 
 	if err != nil {
@@ -169,10 +189,10 @@ func (s *Server) submitScore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	achievements := s.checkAndAwardAchievements(userID, scoreID, req.Clicks, 10)
+	achievements := s.checkAndAwardAchievements(userID, scoreID, req.Clicks, GameDurationSeconds)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(HTTPStatusCreated)
 	json.NewEncoder(w).Encode(SubmitScoreResponse{
 		Score:        score,
 		Achievements: achievements,
@@ -359,8 +379,8 @@ func (s *Server) getUserAchievements(w http.ResponseWriter, r *http.Request) {
 func (s *Server) healthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
-		"status": "healthy",
-		"service": "clicker-game-api",
+		"status":  "healthy",
+		"service": ServiceName,
 	})
 }
 
@@ -374,7 +394,7 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		enableCORS(w)
 		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
+			w.WriteHeader(HTTPStatusOK)
 			return
 		}
 		next(w, r)
@@ -390,14 +410,14 @@ func getEnv(key, defaultValue string) string {
 }
 
 func main() {
-	dbHost := getEnv("DB_HOST", "localhost")
-	dbPort := getEnv("DB_PORT", "5432")
-	dbUser := getEnv("DB_USER", "postgres")
-	dbPassword := getEnv("DB_PASSWORD", "clicker")
-	dbName := getEnv("DB_NAME", "clicker")
+	dbHost := getEnv("DB_HOST", DefaultDBHost)
+	dbPort := getEnv("DB_PORT", DefaultDBPort)
+	dbUser := getEnv("DB_USER", DefaultDBUser)
+	dbPassword := getEnv("DB_PASSWORD", DefaultDBPassword)
+	dbName := getEnv("DB_NAME", DefaultDBName)
 
-	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbName)
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		dbHost, dbPort, dbUser, dbPassword, dbName, SSLMode)
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -420,7 +440,7 @@ func main() {
 	r.HandleFunc("/api/achievements", corsMiddleware(server.getAchievements)).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/achievements/{username}", corsMiddleware(server.getUserAchievements)).Methods("GET", "OPTIONS")
 
-	port := getEnv("PORT", "8081")
+	port := getEnv("PORT", DefaultServerPort)
 	log.Printf("Server starting on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
