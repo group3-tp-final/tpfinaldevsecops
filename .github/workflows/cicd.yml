@@ -1,0 +1,66 @@
+name: CI/CD DevSecOps Final
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  push:
+    branches: [ "main", "develop", "feature/*" ]
+
+jobs:
+
+  trufflehog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Scan with Trufflehog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: .
+
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Trivy (official script)
+        run: |
+          sudo mkdir -p /etc/apt/keyrings
+          wget -qO- https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo tee /etc/apt/keyrings/trivy.asc > /dev/null
+          echo "deb [signed-by=/etc/apt/keyrings/trivy.asc] https://aquasecurity.github.io/trivy-repo/deb $(. /etc/os-release; echo $VERSION_CODENAME) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update -y
+          sudo apt-get install -y trivy
+
+      - name: Trivy filesystem scan
+        run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+
+
+  build:
+    needs: [trufflehog, trivy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to GHCR
+        run: |
+          USERNAME=$(echo "${{ github.actor }}" | tr '[:upper:]' '[:lower:]')
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "$USERNAME" --password-stdin
+
+      - name: Build backend
+        run: |
+          USERNAME=$(echo "${{ github.actor }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/$USERNAME/tpfinal-backend:latest backend/.
+
+      - name: Push image
+        run: |
+          USERNAME=$(echo "${{ github.actor }}" | tr '[:upper:]' '[:lower:]')
+          docker push ghcr.io/$USERNAME/tpfinal-backend:latest
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Trigger Coolify
+        run: curl -X POST ${{ secrets.COOLIFY_WEBHOOK }}
