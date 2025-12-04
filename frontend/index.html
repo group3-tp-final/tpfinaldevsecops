@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 EPIC CLICKER GAME 🎮</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">🔥 ULTIMATE CLICKER CHALLENGE 🔥</h1>
+            <p class="subtitle">Click as fast as humanly possible!</p>
+        </header>
+
+        <div class="game-area">
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="label">Clicks:</span>
+                    <span id="clickCount" class="value">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="label">Time:</span>
+                    <span id="timer" class="value">10</span>
+                </div>
+            </div>
+
+            <div id="clickButton" class="click-button">
+                <div class="button-content">
+                    <span class="button-text">CLICK ME!</span>
+                    <span class="button-emoji">💥</span>
+                </div>
+            </div>
+
+            <div id="gameStatus" class="game-status"></div>
+
+            <div class="user-input">
+                <input type="text" id="username" placeholder="Enter your epic username..." maxlength="50">
+                <button id="startButton" class="start-button">START GAME</button>
+            </div>
+        </div>
+
+        <div class="leaderboard-section">
+            <h2>🏆 LEADERBOARD 🏆</h2>
+            <div id="leaderboard" class="leaderboard">
+                <div class="loading">Loading leaderboard...</div>
+            </div>
+        </div>
+
+        <div class="achievements-section">
+            <h2>🎖️ ACHIEVEMENTS 🎖️</h2>
+            <div id="achievements" class="achievements">
+                <div class="loading">Loading achievements...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="particles" class="particles"></div>
+    
+    <!-- Achievement Notification -->
+    <div id="achievementNotification" class="achievement-notification hidden">
+        <div class="achievement-notification-content">
+            <div class="achievement-icon-large" id="achievementIcon"></div>
+            <div class="achievement-notification-text">
+                <h3 id="achievementTitle">Achievement Unlocked!</h3>
+                <p id="achievementDesc"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
+
