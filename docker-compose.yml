@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: clicker
       POSTGRES_DB: clicker
     ports:
-      - "5432:5432"
+      - "45000:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./database:/docker-entrypoint-initdb.d
@@ -30,7 +30,7 @@ services:
       DB_NAME: clicker
       PORT: 8081
     ports:
-      - "5433:8081"         
+      - "33001:8081"         
     depends_on:
       database:
         condition: service_healthy
@@ -39,7 +39,7 @@ services:
     build: ./frontend
     container_name: frontend_app
     ports:
-      - "5434:80"
+      - "33000:80"
     depends_on:
       - backend
 
