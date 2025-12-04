@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    container_name: backend_app
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    container_name: frontend_app
+
+  database:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tp
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d
+
+volumes:
+  pgdata:
