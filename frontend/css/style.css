@@ -1,0 +1,547 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Press+Start+2P&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #ff006e;
+    --secondary: #8338ec;
+    --accent: #3a86ff;
+    --success: #06ffa5;
+    --warning: #ffbe0b;
+    --dark: #1a1a2e;
+    --light: #fff;
+}
+
+body {
+    font-family: 'Comic Neue', cursive;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--light);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    animation: bounce 2s infinite;
+}
+
+.title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 2.5rem;
+    color: var(--success);
+    text-shadow: 
+        0 0 10px rgba(6, 255, 165, 0.8),
+        0 0 20px rgba(6, 255, 165, 0.6),
+        0 0 30px rgba(6, 255, 165, 0.4),
+        4px 4px 0px var(--dark),
+        6px 6px 0px var(--primary);
+    margin-bottom: 10px;
+    letter-spacing: 3px;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--warning);
+    text-shadow: 3px 3px 0px var(--dark);
+}
+
+.game-area {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 40px;
+    margin-bottom: 30px;
+    border: 5px solid var(--light);
+    box-shadow: 
+        0 0 30px rgba(255, 255, 255, 0.3),
+        inset 0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+.score-display {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    gap: 20px;
+}
+
+.score-item {
+    background: var(--dark);
+    padding: 20px 40px;
+    border-radius: 15px;
+    border: 3px solid var(--success);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.score-item .label {
+    font-size: 1.2rem;
+    color: var(--success);
+    display: block;
+    margin-bottom: 10px;
+}
+
+.score-item .value {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 2rem;
+    color: var(--warning);
+    display: block;
+    text-shadow: 0 0 10px rgba(255, 190, 11, 0.8);
+}
+
+.click-button {
+    width: 300px;
+    height: 300px;
+    margin: 30px auto;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 10px solid var(--light);
+    box-shadow: 
+        0 0 50px rgba(255, 0, 110, 0.6),
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        inset 0 0 50px rgba(255, 255, 255, 0.2);
+    transition: all 0.1s;
+    position: relative;
+    overflow: hidden;
+}
+
+.click-button::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    top: -50%;
+    left: -50%;
+    transform: rotate(45deg);
+    transition: all 0.3s;
+}
+
+.click-button:hover::before {
+    top: 50%;
+    left: 50%;
+}
+
+.click-button:active {
+    transform: scale(0.95);
+    box-shadow: 
+        0 0 80px rgba(255, 0, 110, 1),
+        0 5px 15px rgba(0, 0, 0, 0.7);
+}
+
+.click-button.clicked {
+    animation: pulse 0.3s ease-out;
+}
+
+.button-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.button-text {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.5rem;
+    color: var(--light);
+    text-shadow: 3px 3px 0px var(--dark);
+    display: block;
+}
+
+.button-emoji {
+    font-size: 4rem;
+    display: block;
+    animation: spin 1s linear infinite;
+    margin-top: 10px;
+}
+
+.game-status {
+    text-align: center;
+    min-height: 60px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 20px 0;
+}
+
+.game-status.waiting {
+    color: var(--warning);
+}
+
+.game-status.playing {
+    color: var(--success);
+}
+
+.game-status.finished {
+    color: var(--primary);
+    animation: celebrate 0.5s ease-in-out infinite;
+}
+
+.user-input {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#username {
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    border-radius: 15px;
+    border: 3px solid var(--accent);
+    background: var(--light);
+    color: var(--dark);
+    font-family: 'Comic Neue', cursive;
+    font-weight: 700;
+    outline: none;
+    min-width: 300px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#username:focus {
+    border-color: var(--success);
+    box-shadow: 0 0 20px rgba(6, 255, 165, 0.5);
+}
+
+.start-button {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 15px;
+    border: 3px solid var(--success);
+    background: var(--success);
+    color: var(--dark);
+    cursor: pointer;
+    font-family: 'Comic Neue', cursive;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.start-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(6, 255, 165, 0.6);
+}
+
+.start-button:active {
+    transform: translateY(0);
+}
+
+.start-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.leaderboard-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 30px;
+    border: 5px solid var(--light);
+}
+
+.leaderboard-section h2 {
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--warning);
+    text-shadow: 3px 3px 0px var(--dark);
+    margin-bottom: 20px;
+}
+
+.leaderboard {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.leaderboard-entry {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid var(--success);
+    animation: slideIn 0.3s ease-out;
+}
+
+.leaderboard-entry.top {
+    border-left-color: var(--warning);
+    background: rgba(255, 190, 11, 0.3);
+    font-weight: 700;
+}
+
+.leaderboard-entry .rank {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1rem;
+    color: var(--warning);
+    min-width: 50px;
+}
+
+.leaderboard-entry .username {
+    font-size: 1.2rem;
+    font-weight: 700;
+    flex: 1;
+    margin-left: 20px;
+}
+
+.leaderboard-entry .clicks {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2rem;
+    color: var(--success);
+}
+
+.leaderboard-entry .date {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-left: 20px;
+}
+
+.loading {
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--warning);
+}
+
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.particle {
+    position: absolute;
+    font-size: 2rem;
+    animation: float 3s ease-in-out infinite;
+    opacity: 0.7;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px rgba(6, 255, 165, 0.8), 0 0 20px rgba(6, 255, 165, 0.6), 0 0 30px rgba(6, 255, 165, 0.4), 4px 4px 0px var(--dark); }
+    to { text-shadow: 0 0 20px rgba(6, 255, 165, 1), 0 0 30px rgba(6, 255, 165, 0.8), 0 0 40px rgba(6, 255, 165, 0.6), 4px 4px 0px var(--dark); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes celebrate {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(-5deg); }
+    75% { transform: scale(1.1) rotate(5deg); }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes achievementUnlock {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.achievements-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 30px;
+    margin-top: 30px;
+    border: 5px solid var(--light);
+}
+
+.achievements-section h2 {
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--warning);
+    text-shadow: 3px 3px 0px var(--dark);
+    margin-bottom: 20px;
+}
+
+.achievements {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.achievement-item {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: slideIn 0.3s ease-out;
+}
+
+.achievement-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.achievement-icon {
+    font-size: 3rem;
+    min-width: 60px;
+    text-align: center;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-name {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.9rem;
+    color: var(--light);
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 0px var(--dark);
+}
+
+.achievement-description {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 5px;
+}
+
+.achievement-requirement {
+    font-size: 0.85rem;
+    color: var(--success);
+    font-weight: 700;
+}
+
+.achievement-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    animation: achievementUnlock 0.6s ease-out;
+    pointer-events: none;
+}
+
+.achievement-notification.hidden {
+    display: none;
+}
+
+.achievement-notification-content {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 165, 0, 0.95));
+    padding: 40px 60px;
+    border-radius: 20px;
+    border: 5px solid var(--light);
+    box-shadow: 
+        0 0 50px rgba(255, 215, 0, 0.8),
+        0 10px 40px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    min-width: 350px;
+    text-align: center;
+}
+
+.achievement-icon-large {
+    font-size: 5rem;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+    animation: spin 2s linear infinite;
+}
+
+.achievement-notification-text h3 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2rem;
+    color: var(--dark);
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5);
+}
+
+.achievement-notification-text p {
+    font-size: 1rem;
+    color: var(--dark);
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 1.5rem;
+    }
+    
+    .click-button {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .button-text {
+        font-size: 1rem;
+    }
+    
+    .button-emoji {
+        font-size: 3rem;
+    }
+}
+
