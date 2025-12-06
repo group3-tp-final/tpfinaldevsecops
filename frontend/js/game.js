@@ -63,7 +63,7 @@ let gameState = {
 };
 
 
-const API_BASE_URL = "https://tpfinal.tpdevopslab3.store/api";
+const API_BASE_URL = "/api";
 
 const clickButton = document.getElementById('clickButton');
 const clickCount = document.getElementById('clickCount');
@@ -144,7 +144,7 @@ function showAchievementNotification(achievement) {
 
 async function loadAllAchievements() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/achievements`);
+        const response = await fetch(`${API_BASE_URL}/achievements`);
         
         if (!response.ok) {
             throw new Error('Failed to load achievements');
@@ -187,7 +187,7 @@ async function loadUserAchievements(username) {
     if (!username) return;
     
     try {
-        const response = await fetch(`${API_BASE_URL}/api/achievements/${encodeURIComponent(username)}`);
+        const response = await fetch(`${API_BASE_URL}/achievements/${encodeURIComponent(username)}`);
         
         if (!response.ok) {
             if (response.status === 404) {
@@ -416,7 +416,7 @@ function resetGameUI() {
 
 async function submitScore(username, clicks) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/scores`, {
+        const response = await fetch(`${API_BASE_URL}/scores`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -444,7 +444,7 @@ async function submitScore(username, clicks) {
 
 async function loadLeaderboard() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/leaderboard`);
+        const response = await fetch(`${API_BASE_URL}/leaderboard`);
         
         if (!response.ok) {
             throw new Error('Failed to load leaderboard');

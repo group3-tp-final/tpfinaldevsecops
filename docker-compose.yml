@@ -20,8 +20,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: clicker
       DB_NAME: clicker
-    ports:
-      - "33001:8081"   # PORT EXTERNE 33001 → INTERNE 8081
+    expose:
+      - "8081"      
     depends_on:
       - database
 
@@ -29,20 +29,9 @@ services:
     build: ./frontend
     container_name: frontend_app
     ports:
-      - "33002:80"      # PORT EXTERNE 33002 → INTERNE 80
+      - "80:80"      
     depends_on:
       - backend
-
-  reverse_proxy:
-    image: nginx:alpine
-    container_name: proxy
-    ports:
-      - "80:80"
-    depends_on:
-      - frontend
-      - backend
-    volumes:
-      - ./reverse-proxy.conf:/etc/nginx/conf.d/default.conf:ro
 
 volumes:
   pgdata:
