@@ -21,7 +21,7 @@ services:
       DB_PASSWORD: clicker
       DB_NAME: clicker
     ports:
-      - "8081:8081"   # IMPORTANT : expose correctement
+      - "33001:8081"   # PORT EXTERNE 33001 → INTERNE 8081
     depends_on:
       - database
 
@@ -29,7 +29,7 @@ services:
     build: ./frontend
     container_name: frontend_app
     ports:
-      - "8082:80"   # Nginx du front
+      - "33002:80"      # PORT EXTERNE 33002 → INTERNE 80
     depends_on:
       - backend
 
