@@ -78,12 +78,12 @@ PORT=8081
 docker compose up --build
 ```
 
-### 3. Accès aux services
+### 3. Expose des ports en http
 | Service | URL |
 |--------|-----|
 | Frontend | http://localhost:33000 |
-| Backend API | http://localhost:8081 |
-| PostgreSQL | localhost:5432 |
+| Backend API | http://localhost:33001 |
+| PostgreSQL | localhost:33002 |
 
 ---
 
