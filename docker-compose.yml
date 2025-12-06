@@ -29,8 +29,6 @@ services:
       DB_PASSWORD: clicker
       DB_NAME: clicker
       PORT: 8081
-    ports:
-      - "33001:8081"         
     depends_on:
       database:
         condition: service_healthy

@@ -1,8 +1,6 @@
 // Configuration
 const CONFIG = {
     GAME_DURATION: 10, // secondes
-    BACKEND_PORT: 33001,
-    FRONTEND_PORT: 33000,
     LEADERBOARD_REFRESH_INTERVAL: 30000, // ms
     PARTICLE_LIFETIME: 3000, // ms
     NOTIFICATION_DURATION: 5000, // ms
@@ -65,28 +63,7 @@ let gameState = {
 };
 
 
-const API_BASE_URL = getApiUrl();
-
-function getApiUrl() {
-    
-    if (window.BACKEND_URL) {
-        return window.BACKEND_URL;
-    }
-    
-    
-    const hostname = window.location.hostname;
-    const port = window.location.port;
-    
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return `http://localhost:${CONFIG.BACKEND_PORT}`;
-    }
-    
-    if (port === String(CONFIG.FRONTEND_PORT)) {
-        return window.location.origin.replace(`:${CONFIG.FRONTEND_PORT}`, `:${CONFIG.BACKEND_PORT}`);
-    }
-    
-    return window.location.origin.replace(/:\d+$/, `:${CONFIG.BACKEND_PORT}`) || `http://localhost:${CONFIG.BACKEND_PORT}`;
-}
+const API_BASE_URL = "https://tpfinal.tpdevopslab3.store/api";
 
 const clickButton = document.getElementById('clickButton');
 const clickCount = document.getElementById('clickCount');
