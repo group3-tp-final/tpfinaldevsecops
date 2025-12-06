@@ -63,7 +63,7 @@ let gameState = {
 };
 
 
-const API_BASE_URL = "https://tpfinal.tpdevopslab3.store/api";
+const API_BASE_URL = "https://tpfinal.tpdevopslab3.store";
 
 const clickButton = document.getElementById('clickButton');
 const clickCount = document.getElementById('clickCount');
