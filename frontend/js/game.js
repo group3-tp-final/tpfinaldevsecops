@@ -63,7 +63,7 @@ let gameState = {
 };
 
 
-const API_BASE_URL = "/api";
+const API_BASE_URL = "http://147.79.118.205:33001/api";
 
 const clickButton = document.getElementById('clickButton');
 const clickCount = document.getElementById('clickCount');
