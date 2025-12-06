@@ -1,8 +1,6 @@
 // Configuration
 const CONFIG = {
     GAME_DURATION: 10, // secondes
-    BACKEND_PORT: 33001,
-    FRONTEND_PORT: 33000,
     LEADERBOARD_REFRESH_INTERVAL: 30000, // ms
     PARTICLE_LIFETIME: 3000, // ms
     NOTIFICATION_DURATION: 5000, // ms
@@ -65,28 +63,7 @@ let gameState = {
 };
 
 
-const API_BASE_URL = getApiUrl();
-
-function getApiUrl() {
-    
-    if (window.BACKEND_URL) {
-        return window.BACKEND_URL;
-    }
-    
-    
-    const hostname = window.location.hostname;
-    const port = window.location.port;
-    
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return `http://localhost:${CONFIG.BACKEND_PORT}`;
-    }
-    
-    if (port === String(CONFIG.FRONTEND_PORT)) {
-        return window.location.origin.replace(`:${CONFIG.FRONTEND_PORT}`, `:${CONFIG.BACKEND_PORT}`);
-    }
-    
-    return window.location.origin.replace(/:\d+$/, `:${CONFIG.BACKEND_PORT}`) || `http://localhost:${CONFIG.BACKEND_PORT}`;
-}
+const API_BASE_URL = "http://147.79.118.205:33001/api";
 
 const clickButton = document.getElementById('clickButton');
 const clickCount = document.getElementById('clickCount');
@@ -167,7 +144,7 @@ function showAchievementNotification(achievement) {
 
 async function loadAllAchievements() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/achievements`);
+        const response = await fetch(`${API_BASE_URL}/achievements`);
         
         if (!response.ok) {
             throw new Error('Failed to load achievements');
@@ -210,7 +187,7 @@ async function loadUserAchievements(username) {
     if (!username) return;
     
     try {
-        const response = await fetch(`${API_BASE_URL}/api/achievements/${encodeURIComponent(username)}`);
+        const response = await fetch(`${API_BASE_URL}/achievements/${encodeURIComponent(username)}`);
         
         if (!response.ok) {
             if (response.status === 404) {
@@ -439,7 +416,7 @@ function resetGameUI() {
 
 async function submitScore(username, clicks) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/scores`, {
+        const response = await fetch(`${API_BASE_URL}/scores`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -467,7 +444,7 @@ async function submitScore(username, clicks) {
 
 async function loadLeaderboard() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/leaderboard`);
+        const response = await fetch(`${API_BASE_URL}/leaderboard`);
         
         if (!response.ok) {
             throw new Error('Failed to load leaderboard');
