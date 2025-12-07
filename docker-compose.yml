@@ -3,43 +3,35 @@ version: "3.9"
 services:
   database:
     image: postgres:15
-    container_name: database
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: clicker
       POSTGRES_DB: clicker
-    ports:
-      - "45000:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./database:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d clicker"]
-      interval: 3s
-      timeout: 3s
-      retries: 10
+    ports:
+      - "33002:5432"
 
   backend:
     build: ./backend
     container_name: backend_app
     environment:
-      DB_HOST: database      
+      DB_HOST: database
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: clicker
       DB_NAME: clicker
-      PORT: 8081
     ports:
-      - "33001:8081"         
+      - "33001:8081"   
     depends_on:
-      database:
-        condition: service_healthy
+      - database
 
   frontend:
     build: ./frontend
     container_name: frontend_app
     ports:
-      - "33000:80"
+      - "33000:80"     
     depends_on:
       - backend
 
